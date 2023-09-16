@@ -12,6 +12,7 @@ struct ContentView: View {
     
     @StateObject var shark = Shark()
     @State private var showingFavorites = false
+    @State private var showingLights = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -178,6 +179,7 @@ struct ContentView: View {
                     .buttonStyle(SharkButtonStyle())
                     
                     Button {
+                        showingLights.toggle()
                     } label: {
                         Image(systemName: "light.max")
                             .imageScale(.large)
@@ -185,6 +187,9 @@ struct ContentView: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     .buttonStyle(SharkButtonStyle())
+                    .popover(isPresented: $showingLights, arrowEdge: .trailing) {
+                        LightSettingsView(blueLight: $shark.blueLight, redLight: $shark.redLight)
+                    }
                 }
             }
             .padding(.horizontal, 8)
@@ -195,6 +200,37 @@ struct ContentView: View {
             Gradient(stops: [.init(color: Color(NSColor.underPageBackgroundColor), location: 0),
                              .init(color: Color(NSColor.windowBackgroundColor), location: 0.2)])
         )
+    }
+}
+
+struct LightSettingsView: View {
+    @Binding var blueLight: Double
+    @Binding var redLight: Double
+    
+    var body: some View {
+        VStack {
+            Text("Blue Light")
+                .font(.caption)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Slider(value: $blueLight,
+                   in: 0...127,
+                   minimumValueLabel: Image(systemName: "light.min"),
+                   maximumValueLabel: Image(systemName: "light.max"),
+                   label: {})
+            
+            Divider()
+            
+            Text("Red Light")
+                .font(.caption)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Slider(value: $redLight,
+                   in: 0...127,
+                   minimumValueLabel: Image(systemName: "light.min"),
+                   maximumValueLabel: Image(systemName: "light.max"),
+                   label: {})
+        }
+        .padding(8)
+        .frame(minWidth: 200)
     }
 }
 
@@ -265,5 +301,15 @@ extension ClosedRange<Frequency> {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+    }
+}
+
+struct LightSettingsView_Previews: PreviewProvider {
+    @State static var blueLight: Double = 50
+    @State static var redLight: Double = 100
+    
+    static var previews: some View {
+        LightSettingsView(blueLight: $blueLight, redLight: $redLight)
+            .frame(width: 200)
     }
 }

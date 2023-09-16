@@ -67,6 +67,17 @@ struct Station: Identifiable {
     var name: String?
 }
 
+struct SettingsOptions: OptionSet {
+    let rawValue: UInt
+    
+    static var frequency = SettingsOptions(rawValue: 1 << 0)
+    static var volume    = SettingsOptions(rawValue: 1 << 1)
+    static var blueLight = SettingsOptions(rawValue: 1 << 2)
+    static var redLight  = SettingsOptions(rawValue: 1 << 3)
+    
+    static var all = SettingsOptions(rawValue: .max)
+}
+
 class Shark: ObservableObject {
     private let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     
@@ -90,19 +101,31 @@ class Shark: ObservableObject {
                 band = newBand
             }
             frequencies[band] = frequency
-            applyFrequency()
+            applySettings(.frequency)
         }
     }
     
-    @Published var volume: Float = 1 {
+    @Published var volume: Double {
         didSet {
             if !isPreview {
-                output?.volume = volume
+                applySettings(.volume)
             }
         }
     }
     
     @Published var favorites: [Station] = []
+    
+    @Published var blueLight: Double {
+        didSet {
+            applySettings(.blueLight)
+        }
+    }
+    
+    @Published var redLight: Double {
+        didSet {
+            applySettings(.redLight)
+        }
+    }
     
     init() {
         let defaults = UserDefaults.standard
@@ -136,6 +159,9 @@ class Shark: ObservableObject {
         self.frequencies[.am] = amFrequency
         self.frequencies[.fm] = fmFrequency
         self.frequency = (band == .am) ? amFrequency : fmFrequency
+        self.blueLight = defaults.double(forKey: "blueLight", default: 0)
+        self.redLight = defaults.double(forKey: "redLight", default: 0)
+        self.volume = defaults.double(forKey: "volume", default: 1)
         
         if !isPreview {
             self.session = AVCaptureSession()
@@ -143,7 +169,7 @@ class Shark: ObservableObject {
             sharkOpen()
         }
         
-        applyFrequency()
+        applySettings()
     }
     
     deinit {
@@ -183,7 +209,7 @@ class Shark: ObservableObject {
             
             output = AVCaptureAudioPreviewOutput()
             if let output {
-                output.volume = volume
+                output.volume = Float(volume)
                 if session.canAddOutput(output) {
                     session.addOutput(output)
                 }
@@ -195,15 +221,42 @@ class Shark: ObservableObject {
         }
     }
     
-    private func applyFrequency() {
+    private func applySettings(_ options: SettingsOptions = .all) {
         if !isPreview {
-            switch band {
-            case .am:
-                sendCommand(["-a", frequency.converted(to: .kilohertz).value.formatted(.number.grouping(.never))])
-            case .fm:
-                sendCommand(["-f", frequency.converted(to: .megahertz).value.formatted(.number.precision(.fractionLength(1)))])
+            var command: [String] = []
+            
+            if options.contains(.frequency) {
+                switch band {
+                case .am:
+                    command += ["-a", String(Int(frequency.converted(to: .kilohertz).value))]
+                case .fm:
+                    command += ["-f", frequency.converted(to: .megahertz).value.formatted(.number.precision(.fractionLength(1)))]
+                }
+            }
+            
+            if options.contains(.blueLight) {
+                command += ["-b", String(Int(blueLight))]
+            }
+            
+            if options.contains(.redLight) {
+                command += ["-r", String(Int(redLight))]
+            }
+            
+            if !command.isEmpty {
+                sendCommand(command)
+            }
+            
+            if options.contains(.volume) {
+                output?.volume = Float(volume)
             }
         }
+    }
+
+}
+
+extension UserDefaults {
+    func double(forKey key: String, default defaultValue: Double) -> Double {
+        self.value(forKey: key) != nil ? double(forKey: key) : defaultValue
     }
 }
 
