@@ -27,7 +27,7 @@ enum FrequencyBand: String, CaseIterable {
     var range: ClosedRange<Frequency> {
         switch self {
         case .am:
-            return Measurement(value: 522, unit: UnitFrequency.kilohertz)...Measurement(value: 1710, unit: UnitFrequency.kilohertz)
+            return Measurement(value: 520, unit: UnitFrequency.kilohertz)...Measurement(value: 1710, unit: UnitFrequency.kilohertz)
         case .fm:
             return Measurement(value: 87.5, unit: UnitFrequency.megahertz)...Measurement(value: 108, unit: UnitFrequency.megahertz)
         }

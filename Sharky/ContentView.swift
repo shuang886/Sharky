@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import Sliders
 
 struct ContentView: View {
     private let buttonWidth: CGFloat = 40
+    private let scrubberHeight: CGFloat = 50
     
     @StateObject var shark = Shark()
     @State private var showingFavorites = false
@@ -25,8 +27,7 @@ struct ContentView: View {
             .labelStyle(TrailingIconStyle())
             .font(.largeTitle)
             .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding(.horizontal, 8)
-            .padding(.top, 8)
+            .padding(8)
             
             Spacer()
             
@@ -93,13 +94,35 @@ struct ContentView: View {
                 }
                 
                 VStack {
-                    Slider(value: .double(from: $shark.frequency),
-                           in: shark.band.range.values(in: .hertz),
-                           step: shark.band.step.converted(to: .hertz).value,
-                           minimumValueLabel: Text("88"),
-                           maximumValueLabel: Text("108"),
-                           label: {})
-                    .padding(8)
+                    ValueSlider(value: .double(from: $shark.frequency),
+                                in: shark.band.range.values(in: .hertz),
+                                step: shark.band.step.converted(to: .hertz).value)
+                        .valueSliderStyle(
+                            HorizontalValueSliderStyle(
+                                track:
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .frame(height: 6)
+                                        .foregroundColor(Color(NSColor.controlBackgroundColor)),
+                                thumb:
+                                    Capsule()
+                                        .foregroundColor(.init(white: 0.6))
+                                        .overlay {
+                                            Capsule()
+                                                .fill(
+                                                    Gradient(stops: [
+                                                        .init(color: .white.opacity(0.5), location: 0),
+                                                        .init(color: .white.opacity(0.1), location: 0.1),
+                                                        .init(color: .clear, location: 0.2),
+                                                    ])
+                                                )
+                                                .padding(.horizontal, 1)
+                                                .padding(.vertical, 1)
+                                                .allowsHitTesting(false)
+                                        },
+                                thumbSize: CGSize(width: 8, height: 30)
+                            )
+                        )
+                        .frame(height: scrubberHeight)
                     
                     VStack {
                         HStack {
@@ -143,13 +166,38 @@ struct ContentView: View {
                             .padding(.vertical, 2)
                             .allowsHitTesting(false)
                     )
+                }
+                
+                VStack {
+                    Spacer(minLength: scrubberHeight)
                     
-                    Slider(value: $shark.volume,
-                           in: 0...1,
-                           minimumValueLabel: Image(systemName: "speaker"),
-                           maximumValueLabel: Image(systemName: "speaker.wave.3"),
-                           label: {})
-                    .padding(8)
+                    ValueSlider(value: $shark.volume, in: 0...1)
+                        .valueSliderStyle(
+                            VerticalValueSliderStyle(
+                                thumb:
+                                    Circle()
+                                        .foregroundColor(.init(white: 0.6))
+                                        .overlay {
+                                            Circle()
+                                                .fill(
+                                                    Gradient(stops: [
+                                                        .init(color: .white.opacity(0.5), location: 0),
+                                                        .init(color: .white.opacity(0.1), location: 0.1),
+                                                        .init(color: .clear, location: 0.2),
+                                                    ])
+                                                )
+                                                .padding(.horizontal, 1)
+                                                .padding(.vertical, 1)
+                                                .allowsHitTesting(false)
+                                        },
+                                thumbSize: CGSize(width: 20, height: 20)
+                            )
+                        )
+                        .frame(width: 30)
+                        .padding(.vertical, 4)
+                    
+                    Image(systemName: "speaker.wave.3")
+                        .foregroundColor(Color(NSColor.controlColor))
                 }
                 
                 VStack {
@@ -251,8 +299,9 @@ struct SharkButtonStyle: ButtonStyle {
         configuration.label
             .padding()
             .foregroundColor(isEnabled ? Color(NSColor.controlTextColor) : Color(NSColor.disabledControlTextColor))
-            .background(RoundedRectangle(cornerRadius: 5)
-                .fill(Color(NSColor.controlColor))
+            .background(
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(Color(NSColor.controlColor))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 4)
