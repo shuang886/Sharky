@@ -9,20 +9,62 @@ import CoreFoundation
 import Foundation
 import AVFoundation
 
+enum FrequencyBand: String, CaseIterable {
+    case am
+    case fm
+    
+    func localizedString() -> String {
+        switch self {
+        case .am:
+            return String(localized: "AM")
+        case .fm:
+            return String(localized: "FM")
+        }
+    }
+    
+    var range: ClosedRange<Measurement<UnitFrequency>> {
+        switch self {
+        case .am:
+            return Measurement(value: 522, unit: UnitFrequency.kilohertz)...Measurement(value: 1710, unit: UnitFrequency.kilohertz)
+        case .fm:
+            return Measurement(value: 87.5, unit: UnitFrequency.megahertz)...Measurement(value: 108, unit: UnitFrequency.megahertz)
+        }
+    }
+    
+    var step: Measurement<UnitFrequency> {
+        switch self {
+        case .am:
+            return Measurement(value: 10, unit: UnitFrequency.kilohertz)
+        case .fm:
+            return Measurement(value: 200, unit: UnitFrequency.kilohertz)
+        }
+    }
+    
+    func next() -> Self {
+        let all = Self.allCases
+        let idx = all.firstIndex(of: self)!
+        let next = all.index(after: idx)
+        return all[next == all.endIndex ? all.startIndex : next]
+    }
+}
+
 class Shark: ObservableObject {
-    let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    private let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     
-    var session: AVCaptureSession?
-    var output: AVCaptureAudioPreviewOutput?
+    private var session: AVCaptureSession?
+    private var output: AVCaptureAudioPreviewOutput?
     
-    let bandMinimum = Measurement(value: 88.1, unit: UnitFrequency.megahertz)
-    let bandMaximum = Measurement(value: 107.9, unit: UnitFrequency.megahertz)
-    let bandStep = Measurement(value: 200, unit: UnitFrequency.kilohertz)
+    @Published var band: FrequencyBand {
+        didSet {
+            frequency = frequencies[band]!
+        }
+    }
+    
+    private var frequencies: [ FrequencyBand : Measurement<UnitFrequency> ] = [:]
     @Published var frequency: Measurement<UnitFrequency> {
         didSet {
-            if !isPreview {
-                sendCommand(["-f", frequency.converted(to: .megahertz).value.formatted(.number.precision(.fractionLength(1)))])
-            }
+            frequencies[band] = frequency
+            applyFrequency()
         }
     }
     
@@ -35,13 +77,45 @@ class Shark: ObservableObject {
     }
     
     init() {
-        self.frequency = Measurement(value: 88.5, unit: UnitFrequency.megahertz)
+        let defaults = UserDefaults.standard
+        
+        let band = {
+            if let userValue = defaults.string(forKey: "band") {
+                return FrequencyBand(rawValue: userValue) ?? .fm
+            }
+            return .fm
+        }()
+        
+        let amFrequency = {
+            let userValue = defaults.double(forKey: "amFrequency")
+            let userFrequency = Measurement(value: userValue, unit: UnitFrequency.kilohertz)
+            if FrequencyBand.am.range.contains(userFrequency) {
+                return userFrequency
+            }
+            return Measurement(value: 1050, unit: UnitFrequency.kilohertz)
+        }()
+        
+        let fmFrequency = {
+            let userValue = defaults.double(forKey: "fmFrequency")
+            let userFrequency = Measurement(value: userValue, unit: UnitFrequency.megahertz)
+            if FrequencyBand.fm.range.contains(userFrequency) {
+                return userFrequency
+            }
+            return Measurement(value: 88.5, unit: UnitFrequency.megahertz)
+        }()
+        
+        self.band = band
+        self.frequencies[.am] = amFrequency
+        self.frequencies[.fm] = fmFrequency
+        self.frequency = (band == .am) ? amFrequency : fmFrequency
         
         if !isPreview {
             self.session = AVCaptureSession()
             initAudioPlaythrough()
             sharkOpen()
         }
+        
+        applyFrequency()
     }
     
     deinit {
@@ -50,8 +124,10 @@ class Shark: ObservableObject {
         }
     }
     
-    func sendCommand(_ argv: [String]) {
+    private func sendCommand(_ argv: [String]) {
         guard !isPreview else { return }
+        
+        print("\(#function) \(argv)")
         
         // insert argv[0]
         let fullArgs = [ "" ] + argv
@@ -62,7 +138,7 @@ class Shark: ObservableObject {
     }
     
     /// Connect the RadioSHARK to audio output
-    func initAudioPlaythrough() {
+    private func initAudioPlaythrough() {
         guard !isPreview, let session else { return }
         
         let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone], mediaType: .audio, position: .unspecified).devices
@@ -88,6 +164,17 @@ class Shark: ObservableObject {
             session.startRunning()
         } catch {
             return
+        }
+    }
+    
+    private func applyFrequency() {
+        if !isPreview {
+            switch band {
+            case .am:
+                sendCommand(["-a", frequency.converted(to: .kilohertz).value.formatted(.number.grouping(.never))])
+            case .fm:
+                sendCommand(["-f", frequency.converted(to: .megahertz).value.formatted(.number.precision(.fractionLength(1)))])
+            }
         }
     }
 }

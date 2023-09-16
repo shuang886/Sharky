@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var shark = Shark()
+    @StateObject var shark = Shark()
     
     private let buttonWidth: CGFloat = 40
     
@@ -31,8 +31,8 @@ struct ContentView: View {
             HStack {
                 VStack {
                     Button {
-                        if shark.frequency < shark.bandMaximum {
-                            shark.frequency += shark.bandStep
+                        if shark.frequency < shark.band.range.upperBound {
+                            shark.frequency += shark.band.step
                         }
                     } label: {
                         Image(systemName: "arrowtriangle.up")
@@ -53,8 +53,8 @@ struct ContentView: View {
                     .buttonStyle(SharkButtonStyle())
                     
                     Button {
-                        if shark.frequency > shark.bandMinimum {
-                            shark.frequency -= shark.bandStep
+                        if shark.frequency > shark.band.range.lowerBound {
+                            shark.frequency -= shark.band.step
                         }
                     } label: {
                         Image(systemName: "arrowtriangle.down")
@@ -67,8 +67,8 @@ struct ContentView: View {
                 
                 VStack {
                     Slider(value: .double(from: $shark.frequency),
-                           in: shark.bandMinimum.converted(to: .hertz).value...shark.bandMaximum.converted(to: .hertz).value,
-                           step: shark.bandStep.converted(to: .hertz).value,
+                           in: shark.band.range.values(in: .hertz),
+                           step: shark.band.step.converted(to: .hertz).value,
                            minimumValueLabel: Text("88"),
                            maximumValueLabel: Text("108"),
                            label: {})
@@ -76,14 +76,22 @@ struct ContentView: View {
                     
                     VStack {
                         HStack {
-                            Text("FM")
+                            Text(shark.band.localizedString())
                                 .font(.largeTitle)
                                 .foregroundColor(.accentColor)
                                 .shadow(color: .accentColor, radius: 3)
                             
                             Spacer()
                             
-                            Text(shark.frequency.converted(to: .megahertz).formatted(.measurement(width: .abbreviated, numberFormatStyle: .number.precision(.fractionLength(1)))))
+                            let frequencyString: String = {
+                                switch shark.band {
+                                case .am:
+                                    return shark.frequency.converted(to: .kilohertz).formatted(.measurement(width: .abbreviated, numberFormatStyle: .number.grouping(.never)))
+                                case .fm:
+                                    return shark.frequency.converted(to: .megahertz).formatted(.measurement(width: .abbreviated, numberFormatStyle: .number.precision(.fractionLength(1))))
+                                }
+                            }()
+                            Text(frequencyString)
                                 .font(.system(size: 60, weight: .bold))
                                 .monospacedDigit()
                                 .foregroundColor(.accentColor)
@@ -128,8 +136,18 @@ struct ContentView: View {
                     .buttonStyle(SharkButtonStyle())
                     
                     Button {
+                        shark.band = shark.band.next()
                     } label: {
-                        Text("FM")
+                        Text(shark.band.next().localizedString())
+                            .frame(idealWidth: buttonWidth)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                    .buttonStyle(SharkButtonStyle())
+                    
+                    Button {
+                    } label: {
+                        Image(systemName: "light.max")
+                            .imageScale(.large)
                             .frame(idealWidth: buttonWidth)
                             .fixedSize(horizontal: true, vertical: false)
                     }
@@ -201,6 +219,12 @@ public extension Measurement where UnitType : Dimension {
     
     static func -= (lhs: inout Measurement, rhs: Measurement) {
         lhs = lhs - rhs.converted(to: lhs.unit)
+    }
+}
+
+public extension ClosedRange<Measurement<UnitFrequency>> {
+    func values(in otherUnit: UnitFrequency) -> ClosedRange<Double> {
+        self.lowerBound.converted(to: otherUnit).value...self.upperBound.converted(to: otherUnit).value
     }
 }
 
