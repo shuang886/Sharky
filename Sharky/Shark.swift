@@ -79,7 +79,7 @@ struct SettingsOptions: OptionSet {
 }
 
 class Shark: ObservableObject {
-    private let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    private var isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     
     private var session: AVCaptureSession?
     private var output: AVCaptureAudioPreviewOutput?
@@ -166,7 +166,9 @@ class Shark: ObservableObject {
         if !isPreview {
             self.session = AVCaptureSession()
             initAudioPlaythrough()
-            sharkOpen()
+            if sharkOpen() < 0 {
+                isPreview = true
+            }
         }
         
         applySettings()
