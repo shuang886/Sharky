@@ -1,2 +1,2 @@
 # Sharky
-Unofficial macOS app for the radioSHARK device.
+Unofficial macOS app for the Griffin radioSHARK device.
