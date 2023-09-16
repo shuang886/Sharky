@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var shark = Shark()
-    
     private let buttonWidth: CGFloat = 40
+    
+    @StateObject var shark = Shark()
+    @State private var showingFavorites = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -43,7 +44,7 @@ struct ContentView: View {
                     .buttonStyle(SharkButtonStyle())
                     
                     Button {
-                        
+                        showingFavorites.toggle()
                     } label: {
                         Image(systemName: "list.star")
                             .imageScale(.large)
@@ -51,6 +52,31 @@ struct ContentView: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     .buttonStyle(SharkButtonStyle())
+                    .disabled(shark.favorites.isEmpty)
+                    .popover(isPresented: $showingFavorites, arrowEdge: .leading) {
+                        List(shark.favorites) { item in
+                            HStack {
+                                let itemFrequency: String = {
+                                    let band = try! FrequencyBand(from: item.frequency)
+                                    switch band {
+                                    case .am:
+                                        return item.frequency.converted(to: .kilohertz).formatted(.measurement(width: .abbreviated, numberFormatStyle: .number.grouping(.never)))
+                                    case .fm:
+                                        return item.frequency.converted(to: .megahertz).formatted(.measurement(width: .abbreviated, numberFormatStyle: .number.precision(.fractionLength(1))))
+                                    }
+                                }()
+                                
+                                Text(itemFrequency)
+                                    .font(.title2)
+                                Spacer()
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                shark.frequency = item.frequency
+                                showingFavorites = false
+                            }
+                        }
+                    }
                     
                     Button {
                         if shark.frequency > shark.band.range.lowerBound {
@@ -126,9 +152,16 @@ struct ContentView: View {
                 }
                 
                 VStack {
+                    let isFavorite = shark.favorites.contains(where: { $0.frequency == shark.frequency })
                     Button {
+                        if !isFavorite {
+                            shark.favorites.append(Station(frequency: shark.frequency))
+                        }
+                        else {
+                            shark.favorites.removeAll(where: { $0.frequency == shark.frequency })
+                        }
                     } label: {
-                        Image(systemName: "heart")
+                        Image(systemName: isFavorite ? "heart.fill" : "heart")
                             .imageScale(.large)
                             .frame(idealWidth: buttonWidth)
                             .fixedSize(horizontal: true, vertical: false)
@@ -175,10 +208,11 @@ struct TrailingIconStyle: LabelStyle {
 }
 
 struct SharkButtonStyle: ButtonStyle {
-    public func makeBody(configuration: SharkButtonStyle.Configuration) -> some View {
+    @Environment(\.isEnabled) private var isEnabled: Bool
+    func makeBody(configuration: SharkButtonStyle.Configuration) -> some View {
         configuration.label
             .padding()
-            .foregroundColor(Color(NSColor.controlTextColor))
+            .foregroundColor(isEnabled ? Color(NSColor.controlTextColor) : Color(NSColor.disabledControlTextColor))
             .background(RoundedRectangle(cornerRadius: 5)
                 .fill(Color(NSColor.controlColor))
             )
@@ -202,9 +236,9 @@ struct SharkButtonStyle: ButtonStyle {
     }
 }
 
-public extension Binding {
+extension Binding {
     /// Converts a Binding<Measurement> to a Binding<Double> for SwiftUI elements
-    static func double(from measurementBinding: Binding<Measurement<UnitFrequency>>) -> Binding<Double> {
+    static func double(from measurementBinding: Binding<Frequency>) -> Binding<Double> {
         Binding<Double> (
             get: { measurementBinding.wrappedValue.converted(to: UnitFrequency.hertz).value },
             set: { measurementBinding.wrappedValue = Measurement(value: Double($0), unit: UnitFrequency.hertz) }
@@ -212,7 +246,7 @@ public extension Binding {
     }
 }
 
-public extension Measurement where UnitType : Dimension {
+extension Measurement where UnitType : Dimension {
     static func += (lhs: inout Measurement, rhs: Measurement) {
         lhs = lhs + rhs.converted(to: lhs.unit)
     }
@@ -222,7 +256,7 @@ public extension Measurement where UnitType : Dimension {
     }
 }
 
-public extension ClosedRange<Measurement<UnitFrequency>> {
+extension ClosedRange<Frequency> {
     func values(in otherUnit: UnitFrequency) -> ClosedRange<Double> {
         self.lowerBound.converted(to: otherUnit).value...self.upperBound.converted(to: otherUnit).value
     }

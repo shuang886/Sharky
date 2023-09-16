@@ -9,6 +9,8 @@ import CoreFoundation
 import Foundation
 import AVFoundation
 
+typealias Frequency = Measurement<UnitFrequency>
+
 enum FrequencyBand: String, CaseIterable {
     case am
     case fm
@@ -22,7 +24,7 @@ enum FrequencyBand: String, CaseIterable {
         }
     }
     
-    var range: ClosedRange<Measurement<UnitFrequency>> {
+    var range: ClosedRange<Frequency> {
         switch self {
         case .am:
             return Measurement(value: 522, unit: UnitFrequency.kilohertz)...Measurement(value: 1710, unit: UnitFrequency.kilohertz)
@@ -31,7 +33,7 @@ enum FrequencyBand: String, CaseIterable {
         }
     }
     
-    var step: Measurement<UnitFrequency> {
+    var step: Frequency {
         switch self {
         case .am:
             return Measurement(value: 10, unit: UnitFrequency.kilohertz)
@@ -46,6 +48,23 @@ enum FrequencyBand: String, CaseIterable {
         let next = all.index(after: idx)
         return all[next == all.endIndex ? all.startIndex : next]
     }
+    
+    init(from frequency: Frequency) throws {
+        switch frequency {
+        case Self.am.range:
+            self = .am
+        case Self.fm.range:
+            self = .fm
+        default:
+            throw "frequency out of range"
+        }
+    }
+}
+
+struct Station: Identifiable {
+    let id = UUID()
+    let frequency: Frequency
+    var name: String?
 }
 
 class Shark: ObservableObject {
@@ -56,13 +75,20 @@ class Shark: ObservableObject {
     
     @Published var band: FrequencyBand {
         didSet {
-            frequency = frequencies[band]!
+            let newFrequency = frequencies[band]!
+            if frequency != newFrequency {
+                frequency = newFrequency
+            }
         }
     }
     
-    private var frequencies: [ FrequencyBand : Measurement<UnitFrequency> ] = [:]
-    @Published var frequency: Measurement<UnitFrequency> {
+    private var frequencies: [ FrequencyBand : Frequency ] = [:]
+    @Published var frequency: Frequency {
         didSet {
+            let newBand = try! FrequencyBand(from: frequency)
+            if band != newBand {
+                band = newBand
+            }
             frequencies[band] = frequency
             applyFrequency()
         }
@@ -75,6 +101,8 @@ class Shark: ObservableObject {
             }
         }
     }
+    
+    @Published var favorites: [Station] = []
     
     init() {
         let defaults = UserDefaults.standard
@@ -178,3 +206,5 @@ class Shark: ObservableObject {
         }
     }
 }
+
+extension String: Error {}
