@@ -217,6 +217,7 @@ struct LightSettingsView: View {
                    minimumValueLabel: Image(systemName: "light.min"),
                    maximumValueLabel: Image(systemName: "light.max"),
                    label: {})
+                .tint(blueLight > 0 ? .blue : Color(NSColor.controlColor))
             
             Divider()
             
@@ -228,6 +229,7 @@ struct LightSettingsView: View {
                    minimumValueLabel: Image(systemName: "light.min"),
                    maximumValueLabel: Image(systemName: "light.max"),
                    label: {})
+                .tint(redLight > 0 ? .red : Color(NSColor.controlColor))
         }
         .padding(8)
         .frame(minWidth: 200)
