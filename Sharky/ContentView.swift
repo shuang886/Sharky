@@ -50,6 +50,7 @@ struct ContentView: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     .buttonStyle(SharkButtonStyle())
+                    .disabled(shark.frequency >= shark.band.range.upperBound)
                     
                     Button {
                         showingFavorites.toggle()
@@ -105,6 +106,7 @@ struct ContentView: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     .buttonStyle(SharkButtonStyle())
+                    .disabled(shark.frequency <= shark.band.range.lowerBound)
                 }
                 
                 VStack {
