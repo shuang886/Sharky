@@ -70,12 +70,13 @@ struct Station: Identifiable {
 struct SettingsOptions: OptionSet {
     let rawValue: UInt
     
-    static var frequency = SettingsOptions(rawValue: 1 << 0)
-    static var volume    = SettingsOptions(rawValue: 1 << 1)
-    static var blueLight = SettingsOptions(rawValue: 1 << 2)
-    static var redLight  = SettingsOptions(rawValue: 1 << 3)
+    static var frequency      = SettingsOptions(rawValue: 1 << 0)
+    static var volume         = SettingsOptions(rawValue: 1 << 1)
+    static var blueLight      = SettingsOptions(rawValue: 1 << 2)
+    static var blueLightPulse = SettingsOptions(rawValue: 1 << 3)
+    static var redLight       = SettingsOptions(rawValue: 1 << 4)
     
-    static var all = SettingsOptions(rawValue: .max)
+    static var all            = SettingsOptions(rawValue: .max)
 }
 
 class Shark: ObservableObject {
@@ -121,6 +122,12 @@ class Shark: ObservableObject {
         }
     }
     
+    @Published var blueLightPulse: Double {
+        didSet {
+            applySettings(.blueLightPulse)
+        }
+    }
+    
     @Published var redLight: Double {
         didSet {
             applySettings(.redLight)
@@ -160,6 +167,7 @@ class Shark: ObservableObject {
         self.frequencies[.fm] = fmFrequency
         self.frequency = (band == .am) ? amFrequency : fmFrequency
         self.blueLight = defaults.double(forKey: "blueLight", default: 0)
+        self.blueLightPulse = defaults.double(forKey: "blueLightPulse", default: 0)
         self.redLight = defaults.double(forKey: "redLight", default: 0)
         self.volume = defaults.double(forKey: "volume", default: 1)
         
@@ -240,6 +248,16 @@ class Shark: ObservableObject {
             
             if options.contains(.blueLight) {
                 command += ["-b", String(Int(blueLight))]
+            }
+            
+            if options.contains(.blueLightPulse) {
+                // blueLightPulse is 0 = off, 1 = slowest, 127 = fastest
+                // device expects 0 = off, 1 = fastest, 127 = slowest
+                var pulse = Int(blueLightPulse)
+                if pulse > 0 {
+                    pulse = 128 - pulse
+                }
+                command += ["-p", String(pulse)]
             }
             
             if options.contains(.redLight) {

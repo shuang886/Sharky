@@ -284,7 +284,9 @@ struct ContentView: View {
                     }
                     .buttonStyle(SharkButtonStyle())
                     .popover(isPresented: $showingLights, arrowEdge: .trailing) {
-                        LightSettingsView(blueLight: $shark.blueLight, redLight: $shark.redLight)
+                        LightSettingsView(blueLight: $shark.blueLight,
+                                          blueLightPulse: $shark.blueLightPulse,
+                                          redLight: $shark.redLight)
                     }
                 }
             }
@@ -301,31 +303,73 @@ struct ContentView: View {
 
 struct LightSettingsView: View {
     @Binding var blueLight: Double
+    @Binding var blueLightPulse: Double
     @Binding var redLight: Double
     
     var body: some View {
         VStack {
-            Text("Blue Light")
-                .font(.caption)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Slider(value: $blueLight,
-                   in: 0...127,
-                   minimumValueLabel: Image(systemName: "light.min"),
-                   maximumValueLabel: Image(systemName: "light.max"),
-                   label: {})
-                .tint(blueLight > 0 ? .blue : Color(NSColor.controlColor))
+            VStack(spacing: 2) {
+                Text("Blue Light")
+                    .font(.caption)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Slider(value: $blueLight,
+                       in: 0...127,
+                       label: {})
+                    .tint(blueLight > 0 ? .blue : Color(NSColor.controlColor))
+                HStack {
+                    Image(systemName: "light.min")
+                        .foregroundColor(blueLight > 0 ? .blue : Color(NSColor.controlColor))
+                        .frame(alignment: .leading)
+                    Spacer()
+                    Image(systemName: "light.max")
+                        .foregroundColor(blueLight > 0 ? .blue : Color(NSColor.controlColor))
+                        .frame(alignment: .trailing)
+                }
+            }
+            .padding(.bottom, 8)
             
             Divider()
             
-            Text("Red Light")
-                .font(.caption)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Slider(value: $redLight,
-                   in: 0...127,
-                   minimumValueLabel: Image(systemName: "light.min"),
-                   maximumValueLabel: Image(systemName: "light.max"),
-                   label: {})
-                .tint(redLight > 0 ? .red : Color(NSColor.controlColor))
+            VStack(spacing: 2) {
+                Text("Blue Light Pulsing")
+                    .font(.caption)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Slider(value: $blueLightPulse,
+                       in: 0...127,
+                       label: {})
+                    .tint(blueLightPulse > 0 ? .blue : Color(NSColor.controlColor))
+                HStack {
+                    Image(systemName: "tortoise")
+                        .foregroundColor(blueLightPulse > 0 ? .blue : Color(NSColor.controlColor))
+                        .frame(alignment: .leading)
+                    Spacer()
+                    Image(systemName: "hare")
+                        .foregroundColor(blueLightPulse > 0 ? .blue : Color(NSColor.controlColor))
+                        .frame(alignment: .trailing)
+                }
+            }
+            .padding(.bottom, 8)
+            
+            Divider()
+            
+            VStack(spacing: 2) {
+                Text("Red Light")
+                    .font(.caption)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Slider(value: $redLight,
+                       in: 0...127,
+                       label: {})
+                    .tint(redLight > 0 ? .red : Color(NSColor.controlColor))
+                HStack {
+                    Image(systemName: "light.min")
+                        .foregroundColor(redLight > 0 ? .red : Color(NSColor.controlColor))
+                        .frame(alignment: .leading)
+                    Spacer()
+                    Image(systemName: "light.min")
+                        .foregroundColor(redLight > 0 ? .red : Color(NSColor.controlColor))
+                        .frame(alignment: .trailing)
+                }
+            }
         }
         .padding(8)
         .frame(minWidth: 200)
@@ -400,10 +444,11 @@ struct ContentView_Previews: PreviewProvider {
 
 struct LightSettingsView_Previews: PreviewProvider {
     @State static var blueLight: Double = 50
+    @State static var blueLightPulse: Double = 75
     @State static var redLight: Double = 100
     
     static var previews: some View {
-        LightSettingsView(blueLight: $blueLight, redLight: $redLight)
+        LightSettingsView(blueLight: $blueLight, blueLightPulse: $blueLightPulse, redLight: $redLight)
             .frame(width: 200)
     }
 }
