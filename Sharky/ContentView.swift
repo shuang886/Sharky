@@ -36,8 +36,6 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(8)
             
-            Spacer()
-            
             HStack {
                 VStack {
                     Button {
@@ -102,6 +100,17 @@ struct ContentView: View {
                 
                 VStack {
                     ZStack {
+                        if shark.isPreview {
+                            Text("Preview Mode")
+                                .padding(.horizontal, 5)
+                                .foregroundColor(Color(NSColor.controlBackgroundColor))
+                                .background(
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .fill(.orange.gradient)
+                                )
+                                .frame(maxHeight: .infinity, alignment: .top)
+                        }
+                        
                         VStack {
                             Spacer()
                             
@@ -139,7 +148,7 @@ struct ContentView: View {
                                 HorizontalValueSliderStyle(
                                     track:
                                         RoundedRectangle(cornerRadius: 3)
-                                            .frame(height: 6)
+                                            .frame(height: 2)
                                             .foregroundColor(Color(NSColor.controlBackgroundColor)),
                                     thumb:
                                         Capsule()

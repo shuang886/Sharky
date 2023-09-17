@@ -79,7 +79,7 @@ struct SettingsOptions: OptionSet {
 }
 
 class Shark: ObservableObject {
-    private var isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    var isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     
     private var session: AVCaptureSession?
     private var output: AVCaptureAudioPreviewOutput?
