@@ -61,8 +61,8 @@ enum FrequencyBand: String, CaseIterable {
     }
 }
 
-struct Station: Identifiable {
-    let id = UUID()
+struct Station: Identifiable, Codable {
+    var id = UUID()
     let frequency: Frequency
     var name: String = ""
 }
@@ -136,7 +136,14 @@ class Shark: ObservableObject {
         }
     }
     
-    @Published var favorites: [Station] = []
+    @Published var favorites: [Station] = [] {
+        didSet {
+            let encoder = JSONEncoder()
+            if let encoded = try? encoder.encode(favorites) {
+                UserDefaults.standard.setValue(encoded, forKey: Self.userDefaultsKeyFavorites)
+            }
+        }
+    }
     
     @Published var blueLight: Double {
         didSet {
@@ -195,6 +202,13 @@ class Shark: ObservableObject {
         self.blueLightPulse = defaults.double(forKey: Self.userDefaultsKeyBlueLightPulse, default: 0)
         self.redLight = defaults.double(forKey: Self.userDefaultsKeyRedLight, default: 0)
         self.volume = defaults.double(forKey: Self.userDefaultsKeyVolume, default: 1)
+        
+        if let favoritesData = defaults.object(forKey: Self.userDefaultsKeyFavorites) as? Data {
+            let decoder = JSONDecoder()
+            if let favorites = try? decoder.decode([Station].self, from: favoritesData) {
+                self.favorites = favorites
+            }
+        }
         
         if !isPreview {
             self.session = AVCaptureSession()
