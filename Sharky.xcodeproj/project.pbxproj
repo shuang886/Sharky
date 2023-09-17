@@ -17,6 +17,7 @@
 		B037E75D2AB670CF00167D11 /* RulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037E75C2AB670CF00167D11 /* RulerView.swift */; };
 		B06BEB3A2AB790C600A8DC21 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = B06BEB392AB790C600A8DC21 /* Credits.html */; };
 		B06BEB462AB7A7B600A8DC21 /* SharkUSBHID.c in Sources */ = {isa = PBXBuildFile; fileRef = B037E74A2AB4F10700167D11 /* SharkUSBHID.c */; };
+		B06BEB492AB7BD8800A8DC21 /* Sliders in Frameworks */ = {isa = PBXBuildFile; productRef = B06BEB482AB7BD8800A8DC21 /* Sliders */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,7 +43,6 @@
 		B037E7482AB4F10600167D11 /* Sharky-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sharky-Bridging-Header.h"; sourceTree = "<group>"; };
 		B037E7492AB4F10700167D11 /* SharkUSBHID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharkUSBHID.h; sourceTree = "<group>"; };
 		B037E74A2AB4F10700167D11 /* SharkUSBHID.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SharkUSBHID.c; sourceTree = "<group>"; };
-		B037E7562AB65EC800167D11 /* swiftui-sliders */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swiftui-sliders"; path = "../swiftui-sliders"; sourceTree = "<group>"; };
 		B037E75C2AB670CF00167D11 /* RulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulerView.swift; sourceTree = "<group>"; };
 		B06BEB392AB790C600A8DC21 /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		B06BEB3F2AB7A78E00A8DC21 /* radiosh */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = radiosh; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -54,6 +54,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B037E75B2AB65F1500167D11 /* Sliders in Frameworks */,
+				B06BEB492AB7BD8800A8DC21 /* Sliders in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,7 +72,6 @@
 			isa = PBXGroup;
 			children = (
 				B037E7362AB376DE00167D11 /* Sharky */,
-				B037E7532AB65E5C00167D11 /* Packages */,
 				B037E7482AB4F10600167D11 /* Sharky-Bridging-Header.h */,
 				B037E7352AB376DE00167D11 /* Products */,
 				B037E7592AB65F1500167D11 /* Frameworks */,
@@ -112,14 +112,6 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		B037E7532AB65E5C00167D11 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				B037E7562AB65EC800167D11 /* swiftui-sliders */,
-			);
-			name = Packages;
-			sourceTree = "<group>";
-		};
 		B037E7592AB65F1500167D11 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -146,6 +138,7 @@
 			name = Sharky;
 			packageProductDependencies = (
 				B037E75A2AB65F1500167D11 /* Sliders */,
+				B06BEB482AB7BD8800A8DC21 /* Sliders */,
 			);
 			productName = Sharky;
 			productReference = B037E7342AB376DE00167D11 /* Sharky.app */;
@@ -197,6 +190,7 @@
 			);
 			mainGroup = B037E72B2AB376DE00167D11;
 			packageReferences = (
+				B06BEB472AB7BD8800A8DC21 /* XCRemoteSwiftPackageReference "swiftui-sliders" */,
 			);
 			productRefGroup = B037E7352AB376DE00167D11 /* Products */;
 			projectDirPath = "";
@@ -479,6 +473,17 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		B06BEB472AB7BD8800A8DC21 /* XCRemoteSwiftPackageReference "swiftui-sliders" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/shuang886/swiftui-sliders";
+			requirement = {
+				branch = sharky;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		B037E7572AB65F0C00167D11 /* Sliders */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -486,6 +491,11 @@
 		};
 		B037E75A2AB65F1500167D11 /* Sliders */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = Sliders;
+		};
+		B06BEB482AB7BD8800A8DC21 /* Sliders */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B06BEB472AB7BD8800A8DC21 /* XCRemoteSwiftPackageReference "swiftui-sliders" */;
 			productName = Sliders;
 		};
 /* End XCSwiftPackageProductDependency section */
