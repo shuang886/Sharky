@@ -370,3 +370,18 @@ void sharkClose(void)
     (*hidInterface)->Release(hidInterface);
     IOObjectRelease(service);
 }
+
+#ifdef RADIOSH
+int main(int argc, char *argv[]) {
+    int result;
+    if ((result = sharkOpen()) != 0) {
+        return result;
+    }
+    if ((result = sharkCommand(argc, argv)) != 0) {
+        return result;
+    }
+    sharkClose();
+    return 0;
+}
+#endif // RADIOSH
+

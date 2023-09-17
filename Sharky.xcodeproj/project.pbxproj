@@ -16,7 +16,20 @@
 		B037E75B2AB65F1500167D11 /* Sliders in Frameworks */ = {isa = PBXBuildFile; productRef = B037E75A2AB65F1500167D11 /* Sliders */; };
 		B037E75D2AB670CF00167D11 /* RulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037E75C2AB670CF00167D11 /* RulerView.swift */; };
 		B06BEB3A2AB790C600A8DC21 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = B06BEB392AB790C600A8DC21 /* Credits.html */; };
+		B06BEB462AB7A7B600A8DC21 /* SharkUSBHID.c in Sources */ = {isa = PBXBuildFile; fileRef = B037E74A2AB4F10700167D11 /* SharkUSBHID.c */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B06BEB3D2AB7A78E00A8DC21 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		B037E7342AB376DE00167D11 /* Sharky.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sharky.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -32,6 +45,7 @@
 		B037E7562AB65EC800167D11 /* swiftui-sliders */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swiftui-sliders"; path = "../swiftui-sliders"; sourceTree = "<group>"; };
 		B037E75C2AB670CF00167D11 /* RulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulerView.swift; sourceTree = "<group>"; };
 		B06BEB392AB790C600A8DC21 /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
+		B06BEB3F2AB7A78E00A8DC21 /* radiosh */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = radiosh; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,6 +54,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				B037E75B2AB65F1500167D11 /* Sliders in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B06BEB3C2AB7A78E00A8DC21 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				B037E7342AB376DE00167D11 /* Sharky.app */,
+				B06BEB3F2AB7A78E00A8DC21 /* radiosh */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -129,6 +151,23 @@
 			productReference = B037E7342AB376DE00167D11 /* Sharky.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B06BEB3E2AB7A78E00A8DC21 /* radiosh */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B06BEB432AB7A78E00A8DC21 /* Build configuration list for PBXNativeTarget "radiosh" */;
+			buildPhases = (
+				B06BEB3B2AB7A78E00A8DC21 /* Sources */,
+				B06BEB3C2AB7A78E00A8DC21 /* Frameworks */,
+				B06BEB3D2AB7A78E00A8DC21 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = radiosh;
+			productName = radiosh;
+			productReference = B06BEB3F2AB7A78E00A8DC21 /* radiosh */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -142,6 +181,9 @@
 					B037E7332AB376DE00167D11 = {
 						CreatedOnToolsVersion = 14.3.1;
 						LastSwiftMigration = 1430;
+					};
+					B06BEB3E2AB7A78E00A8DC21 = {
+						CreatedOnToolsVersion = 14.3.1;
 					};
 				};
 			};
@@ -161,6 +203,7 @@
 			projectRoot = "";
 			targets = (
 				B037E7332AB376DE00167D11 /* Sharky */,
+				B06BEB3E2AB7A78E00A8DC21 /* radiosh */,
 			);
 		};
 /* End PBXProject section */
@@ -188,6 +231,14 @@
 				B037E7472AB377F200167D11 /* Shark.swift in Sources */,
 				B037E74B2AB4F10700167D11 /* SharkUSBHID.c in Sources */,
 				B037E7382AB376DE00167D11 /* SharkyApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B06BEB3B2AB7A78E00A8DC21 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B06BEB462AB7A7B600A8DC21 /* SharkUSBHID.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +350,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -371,6 +423,28 @@
 			};
 			name = Release;
 		};
+		B06BEB442AB7A78E00A8DC21 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"RADIOSH=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		B06BEB452AB7A78E00A8DC21 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = "RADIOSH=1";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -388,6 +462,15 @@
 			buildConfigurations = (
 				B037E7442AB376DF00167D11 /* Debug */,
 				B037E7452AB376DF00167D11 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B06BEB432AB7A78E00A8DC21 /* Build configuration list for PBXNativeTarget "radiosh" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B06BEB442AB7A78E00A8DC21 /* Debug */,
+				B06BEB452AB7A78E00A8DC21 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
