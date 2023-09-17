@@ -64,7 +64,7 @@ enum FrequencyBand: String, CaseIterable {
 struct Station: Identifiable {
     let id = UUID()
     let frequency: Frequency
-    var name: String?
+    var name: String = ""
 }
 
 struct SettingsOptions: OptionSet {

@@ -61,8 +61,8 @@ struct ContentView: View {
                     }
                     .buttonStyle(SharkButtonStyle())
                     .disabled(shark.favorites.isEmpty)
-                    .popover(isPresented: $showingFavorites, arrowEdge: .leading) {
-                        List(shark.favorites) { item in
+                    .popover(isPresented: $showingFavorites, arrowEdge: .leading) { // MARK: favorites list
+                        List($shark.favorites) { $item in
                             HStack {
                                 let itemFrequency: String = {
                                     let band = try! FrequencyBand(from: item.frequency)
@@ -74,9 +74,17 @@ struct ContentView: View {
                                     }
                                 }()
                                 
-                                Text(itemFrequency)
-                                    .font(.title2)
-                                Spacer()
+                                TextField(itemFrequency, text: $item.name)
+                                
+                                if !item.name.isEmpty {
+                                    Text(itemFrequency)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .frame(alignment: .leading)
+                                }
+                                
+                                Image(systemName: "chevron.right.circle")
+                                    .imageScale(.large)
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
@@ -187,6 +195,13 @@ struct ContentView: View {
                                 .shadow(color: .accentColor, radius: 4)
                         }
                         .padding(.horizontal, 8)
+                        
+                        let station = shark.favorites.first(where: { $0.frequency == shark.frequency })
+                        Text((station == nil || station!.name.isEmpty) ? " " : station!.name)
+                            .lineLimit(1, reservesSpace: true)
+                            .font(.system(size: 30, weight: .bold))
+                            .foregroundColor(.accentColor)
+                            .shadow(color: .accentColor, radius: 4)
                     }
                     .frame(maxHeight: .infinity)
                     .background(RoundedRectangle(cornerRadius: 10).fill(.black))
