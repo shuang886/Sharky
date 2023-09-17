@@ -72,7 +72,6 @@
 			isa = PBXGroup;
 			children = (
 				B037E7362AB376DE00167D11 /* Sharky */,
-				B037E7482AB4F10600167D11 /* Sharky-Bridging-Header.h */,
 				B037E7352AB376DE00167D11 /* Products */,
 				B037E7592AB65F1500167D11 /* Frameworks */,
 			);
@@ -96,6 +95,7 @@
 				B037E7462AB377F200167D11 /* Shark.swift */,
 				B037E7492AB4F10700167D11 /* SharkUSBHID.h */,
 				B037E74A2AB4F10700167D11 /* SharkUSBHID.c */,
+				B037E7482AB4F10600167D11 /* Sharky-Bridging-Header.h */,
 				B06BEB392AB790C600A8DC21 /* Credits.html */,
 				B037E73B2AB376DF00167D11 /* Assets.xcassets */,
 				B037E7402AB376DF00167D11 /* Sharky.entitlements */,
@@ -384,7 +384,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tampinco.Sharky;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "Sharky-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Sharky/Sharky-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -414,7 +414,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tampinco.Sharky;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "Sharky-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Sharky/Sharky-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
