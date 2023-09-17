@@ -179,7 +179,11 @@ class Shark: ObservableObject {
             }
         }
         
-        applySettings()
+        self.applySettings()
+        
+        // seems like one of the previous commands (tuning?) overrides the blue LED setting
+        // so we force it off right afterwards
+        self.applySettings(.blueLight)
     }
     
     deinit {
