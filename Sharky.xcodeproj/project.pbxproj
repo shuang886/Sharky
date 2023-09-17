@@ -15,6 +15,7 @@
 		B037E74B2AB4F10700167D11 /* SharkUSBHID.c in Sources */ = {isa = PBXBuildFile; fileRef = B037E74A2AB4F10700167D11 /* SharkUSBHID.c */; };
 		B037E75B2AB65F1500167D11 /* Sliders in Frameworks */ = {isa = PBXBuildFile; productRef = B037E75A2AB65F1500167D11 /* Sliders */; };
 		B037E75D2AB670CF00167D11 /* RulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037E75C2AB670CF00167D11 /* RulerView.swift */; };
+		B06BEB3A2AB790C600A8DC21 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = B06BEB392AB790C600A8DC21 /* Credits.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		B037E74A2AB4F10700167D11 /* SharkUSBHID.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SharkUSBHID.c; sourceTree = "<group>"; };
 		B037E7562AB65EC800167D11 /* swiftui-sliders */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swiftui-sliders"; path = "../swiftui-sliders"; sourceTree = "<group>"; };
 		B037E75C2AB670CF00167D11 /* RulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulerView.swift; sourceTree = "<group>"; };
+		B06BEB392AB790C600A8DC21 /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +74,7 @@
 				B037E7462AB377F200167D11 /* Shark.swift */,
 				B037E7492AB4F10700167D11 /* SharkUSBHID.h */,
 				B037E74A2AB4F10700167D11 /* SharkUSBHID.c */,
+				B06BEB392AB790C600A8DC21 /* Credits.html */,
 				B037E73B2AB376DF00167D11 /* Assets.xcassets */,
 				B037E7402AB376DF00167D11 /* Sharky.entitlements */,
 				B037E73D2AB376DF00167D11 /* Preview Content */,
@@ -168,6 +171,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B037E73F2AB376DF00167D11 /* Preview Assets.xcassets in Resources */,
+				B06BEB3A2AB790C600A8DC21 /* Credits.html in Resources */,
 				B037E73C2AB376DF00167D11 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
