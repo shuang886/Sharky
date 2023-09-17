@@ -8,9 +8,16 @@
 import SwiftUI
 import Sliders
 
+private let sheen = Gradient(stops: [
+    .init(color: .white.opacity(0.5), location: 0),
+    .init(color: .white.opacity(0.1), location: 0.1),
+    .init(color: .clear, location: 0.2),
+])
+
 struct ContentView: View {
     private let buttonWidth: CGFloat = 40
     private let scrubberHeight: CGFloat = 50
+    private let scrubberWidth: CGFloat = 8
     
     @StateObject var shark = Shark()
     @State private var showingFavorites = false
@@ -94,36 +101,62 @@ struct ContentView: View {
                 }
                 
                 VStack {
-                    ValueSlider(value: .double(from: $shark.frequency),
-                                in: shark.band.range.values(in: .hertz),
-                                step: shark.band.step.converted(to: .hertz).value)
-                        .valueSliderStyle(
-                            HorizontalValueSliderStyle(
-                                track:
+                    ZStack {
+                        VStack {
+                            Spacer()
+                            
+                            let tick = { () -> (major: Double, minor: Double, label: Double, labelUnit: Double) in
+                                switch shark.band {
+                                case .am:
+                                    return (Frequency(value: 100, unit: .kilohertz).converted(to: .hertz).value,
+                                            Frequency(value: 50, unit: .kilohertz).converted(to: .hertz).value,
+                                            Frequency(value: 100, unit: .kilohertz).converted(to: .hertz).value,
+                                            Frequency(value: 1, unit: .kilohertz).converted(to: .hertz).value)
+                                case .fm:
+                                    return (Frequency(value: 1, unit: .megahertz).converted(to: .hertz).value,
+                                            Frequency(value: 500, unit: .kilohertz).converted(to: .hertz).value,
+                                            Frequency(value: 2, unit: .megahertz).converted(to: .hertz).value,
+                                            Frequency(value: 1, unit: .megahertz).converted(to: .hertz).value)
+                                }
+                            }()
+                            
+                            RulerView(range: shark.band.range.values(in: .hertz),
+                                      majorTick: tick.major,
+                                      minorTick: tick.minor,
+                                      labelTick: tick.label,
+                                      labelUnit: tick.labelUnit)
+                                .frame(height: scrubberHeight / 2)
+                                .padding(.horizontal, scrubberWidth / 2)
+                                .background(
                                     RoundedRectangle(cornerRadius: 3)
-                                        .frame(height: 6)
-                                        .foregroundColor(Color(NSColor.controlBackgroundColor)),
-                                thumb:
-                                    Capsule()
-                                        .foregroundColor(.init(white: 0.6))
-                                        .overlay {
-                                            Capsule()
-                                                .fill(
-                                                    Gradient(stops: [
-                                                        .init(color: .white.opacity(0.5), location: 0),
-                                                        .init(color: .white.opacity(0.1), location: 0.1),
-                                                        .init(color: .clear, location: 0.2),
-                                                    ])
-                                                )
-                                                .padding(.horizontal, 1)
-                                                .padding(.vertical, 1)
-                                                .allowsHitTesting(false)
-                                        },
-                                thumbSize: CGSize(width: 8, height: 30)
+                                        .foregroundColor(Color(NSColor.controlBackgroundColor)))
+                        }
+                        
+                        ValueSlider(value: .double(from: $shark.frequency),
+                                    in: shark.band.range.values(in: .hertz),
+                                    step: shark.band.step.converted(to: .hertz).value)
+                            .valueSliderStyle(
+                                HorizontalValueSliderStyle(
+                                    track:
+                                        RoundedRectangle(cornerRadius: 3)
+                                            .frame(height: 6)
+                                            .foregroundColor(Color(NSColor.controlBackgroundColor)),
+                                    thumb:
+                                        Capsule()
+                                            .foregroundColor(.init(white: 0.6))
+                                            .overlay {
+                                                Capsule()
+                                                    .fill(sheen)
+                                                    .padding(.horizontal, 1)
+                                                    .padding(.vertical, 1)
+                                                    .allowsHitTesting(false)
+                                            },
+                                    thumbSize: CGSize(width: scrubberWidth, height: 30)
+                                )
                             )
-                        )
-                        .frame(height: scrubberHeight)
-                    
+                    }
+                    .frame(height: scrubberHeight)
+
                     VStack {
                         HStack {
                             Text(shark.band.localizedString())
@@ -179,13 +212,7 @@ struct ContentView: View {
                                         .foregroundColor(.init(white: 0.6))
                                         .overlay {
                                             Circle()
-                                                .fill(
-                                                    Gradient(stops: [
-                                                        .init(color: .white.opacity(0.5), location: 0),
-                                                        .init(color: .white.opacity(0.1), location: 0.1),
-                                                        .init(color: .clear, location: 0.2),
-                                                    ])
-                                                )
+                                                .fill(sheen)
                                                 .padding(.horizontal, 1)
                                                 .padding(.vertical, 1)
                                                 .allowsHitTesting(false)
@@ -305,13 +332,7 @@ struct SharkButtonStyle: ButtonStyle {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(
-                        Gradient(stops: [
-                            .init(color: .white.opacity(0.5), location: 0),
-                            .init(color: .white.opacity(0.1), location: 0.1),
-                            .init(color: .clear, location: 0.2),
-                        ])
-                    )
+                    .fill(sheen)
                     .padding(.horizontal, 1)
                     .padding(.vertical, 1)
                     .allowsHitTesting(false)

@@ -14,6 +14,7 @@
 		B037E7472AB377F200167D11 /* Shark.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037E7462AB377F200167D11 /* Shark.swift */; };
 		B037E74B2AB4F10700167D11 /* SharkUSBHID.c in Sources */ = {isa = PBXBuildFile; fileRef = B037E74A2AB4F10700167D11 /* SharkUSBHID.c */; };
 		B037E75B2AB65F1500167D11 /* Sliders in Frameworks */ = {isa = PBXBuildFile; productRef = B037E75A2AB65F1500167D11 /* Sliders */; };
+		B037E75D2AB670CF00167D11 /* RulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037E75C2AB670CF00167D11 /* RulerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		B037E7492AB4F10700167D11 /* SharkUSBHID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharkUSBHID.h; sourceTree = "<group>"; };
 		B037E74A2AB4F10700167D11 /* SharkUSBHID.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SharkUSBHID.c; sourceTree = "<group>"; };
 		B037E7562AB65EC800167D11 /* swiftui-sliders */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swiftui-sliders"; path = "../swiftui-sliders"; sourceTree = "<group>"; };
+		B037E75C2AB670CF00167D11 /* RulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 			children = (
 				B037E7372AB376DE00167D11 /* SharkyApp.swift */,
 				B037E7392AB376DE00167D11 /* ContentView.swift */,
+				B037E75C2AB670CF00167D11 /* RulerView.swift */,
 				B037E7462AB377F200167D11 /* Shark.swift */,
 				B037E7492AB4F10700167D11 /* SharkUSBHID.h */,
 				B037E74A2AB4F10700167D11 /* SharkUSBHID.c */,
@@ -177,6 +180,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B037E73A2AB376DE00167D11 /* ContentView.swift in Sources */,
+				B037E75D2AB670CF00167D11 /* RulerView.swift in Sources */,
 				B037E7472AB377F200167D11 /* Shark.swift in Sources */,
 				B037E74B2AB4F10700167D11 /* SharkUSBHID.c in Sources */,
 				B037E7382AB376DE00167D11 /* SharkyApp.swift in Sources */,
