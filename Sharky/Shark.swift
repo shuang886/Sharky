@@ -183,7 +183,9 @@ class Shark: ObservableObject {
     private func sendCommand(_ argv: [String]) {
         guard !isPreview else { return }
         
+        #if DEBUG
         print("\(#function) \(argv)")
+        #endif
         
         // insert argv[0]
         let fullArgs = [ "" ] + argv

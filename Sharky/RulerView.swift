@@ -8,11 +8,15 @@
 import SwiftUI
 
 struct RulerView: View {
-    
+    /// Range of the ruler
     let range: ClosedRange<Double>
+    /// Draws a major tick when value is divisible by this. Must be a multiple of `minorTick`
     let majorTick: Double
+    /// Draws a minor tick when value is divisible by this.
     let minorTick: Double
+    /// Draws a label when value is divisible by this. Must be a multiple of `minorTick` but probably best if a multiple of `majorTick`.
     var labelTick: Double?
+    /// Base unit of the label. For example, if the value is hertz, set to 1,000 to display as kilohertz.
     var labelUnit: Double?
     
     var body: some View {

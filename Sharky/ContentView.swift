@@ -18,6 +18,7 @@ struct ContentView: View {
     private let buttonWidth: CGFloat = 40
     private let scrubberHeight: CGFloat = 50
     private let scrubberWidth: CGFloat = 8
+    private let volumeThumbSize = CGSize(width: 20, height: 20)
     
     @StateObject var shark = Shark()
     @State private var showingFavorites = false
@@ -25,7 +26,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Label {
+            Label { // MARK: app title
                 Text("**radio**SHARK")
             } icon: {
                 Image(systemName: "dot.radiowaves.up.forward")
@@ -37,7 +38,7 @@ struct ContentView: View {
             .padding(8)
             
             HStack {
-                VStack {
+                VStack { // MARK: left column of buttons
                     Button {
                         if shark.frequency < shark.band.range.upperBound {
                             shark.frequency += shark.band.step
@@ -99,7 +100,7 @@ struct ContentView: View {
                 }
                 
                 VStack {
-                    ZStack {
+                    ZStack(alignment: .bottom) { // MARK: scrubber
                         if shark.isPreview {
                             Text("Preview Mode")
                                 .padding(.horizontal, 5)
@@ -111,35 +112,31 @@ struct ContentView: View {
                                 .frame(maxHeight: .infinity, alignment: .top)
                         }
                         
-                        VStack {
-                            Spacer()
-                            
-                            let tick = { () -> (major: Double, minor: Double, label: Double, labelUnit: Double) in
-                                switch shark.band {
-                                case .am:
-                                    return (Frequency(value: 100, unit: .kilohertz).converted(to: .hertz).value,
-                                            Frequency(value: 50, unit: .kilohertz).converted(to: .hertz).value,
-                                            Frequency(value: 100, unit: .kilohertz).converted(to: .hertz).value,
-                                            Frequency(value: 1, unit: .kilohertz).converted(to: .hertz).value)
-                                case .fm:
-                                    return (Frequency(value: 1, unit: .megahertz).converted(to: .hertz).value,
-                                            Frequency(value: 500, unit: .kilohertz).converted(to: .hertz).value,
-                                            Frequency(value: 2, unit: .megahertz).converted(to: .hertz).value,
-                                            Frequency(value: 1, unit: .megahertz).converted(to: .hertz).value)
-                                }
-                            }()
-                            
-                            RulerView(range: shark.band.range.values(in: .hertz),
-                                      majorTick: tick.major,
-                                      minorTick: tick.minor,
-                                      labelTick: tick.label,
-                                      labelUnit: tick.labelUnit)
-                                .frame(height: scrubberHeight / 2)
-                                .padding(.horizontal, scrubberWidth / 2)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 3)
-                                        .foregroundColor(Color(NSColor.controlBackgroundColor)))
-                        }
+                        let tick = { () -> (major: Double, minor: Double, label: Double, labelUnit: Double) in
+                            switch shark.band {
+                            case .am:
+                                return (Frequency(value: 100, unit: .kilohertz).converted(to: .hertz).value,
+                                        Frequency(value: 50, unit: .kilohertz).converted(to: .hertz).value,
+                                        Frequency(value: 100, unit: .kilohertz).converted(to: .hertz).value,
+                                        Frequency(value: 1, unit: .kilohertz).converted(to: .hertz).value)
+                            case .fm:
+                                return (Frequency(value: 1, unit: .megahertz).converted(to: .hertz).value,
+                                        Frequency(value: 500, unit: .kilohertz).converted(to: .hertz).value,
+                                        Frequency(value: 2, unit: .megahertz).converted(to: .hertz).value,
+                                        Frequency(value: 1, unit: .megahertz).converted(to: .hertz).value)
+                            }
+                        }()
+                        
+                        RulerView(range: shark.band.range.values(in: .hertz),
+                                  majorTick: tick.major,
+                                  minorTick: tick.minor,
+                                  labelTick: tick.label,
+                                  labelUnit: tick.labelUnit)
+                            .frame(height: scrubberHeight / 2)
+                            .padding(.horizontal, scrubberWidth / 2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 3)
+                                    .foregroundColor(Color(NSColor.controlBackgroundColor)))
                         
                         ValueSlider(value: .double(from: $shark.frequency),
                                     in: shark.band.range.values(in: .hertz),
@@ -147,7 +144,7 @@ struct ContentView: View {
                             .valueSliderStyle(
                                 HorizontalValueSliderStyle(
                                     track:
-                                        RoundedRectangle(cornerRadius: 3)
+                                        Rectangle()
                                             .frame(height: 2)
                                             .foregroundColor(Color(NSColor.controlBackgroundColor)),
                                     thumb:
@@ -165,8 +162,8 @@ struct ContentView: View {
                             )
                     }
                     .frame(height: scrubberHeight)
-
-                    VStack {
+                    
+                    VStack { // MARK: center display
                         HStack {
                             Text(shark.band.localizedString())
                                 .font(.largeTitle)
@@ -190,7 +187,6 @@ struct ContentView: View {
                                 .shadow(color: .accentColor, radius: 4)
                         }
                         .padding(.horizontal, 8)
-                        .padding(.bottom, 8)
                     }
                     .frame(maxHeight: .infinity)
                     .background(RoundedRectangle(cornerRadius: 10).fill(.black))
@@ -210,8 +206,8 @@ struct ContentView: View {
                     )
                 }
                 
-                VStack {
-                    Spacer(minLength: scrubberHeight)
+                VStack { // MARK: volume slider
+                    Spacer(minLength: scrubberHeight + volumeThumbSize.height / 2)
                     
                     ValueSlider(value: $shark.volume, in: 0...1)
                         .valueSliderStyle(
@@ -226,7 +222,7 @@ struct ContentView: View {
                                                 .padding(.vertical, 1)
                                                 .allowsHitTesting(false)
                                         },
-                                thumbSize: CGSize(width: 20, height: 20)
+                                thumbSize: volumeThumbSize
                             )
                         )
                         .frame(width: 30)
@@ -234,9 +230,10 @@ struct ContentView: View {
                     
                     Image(systemName: "speaker.wave.3")
                         .foregroundColor(Color(NSColor.controlColor))
+                        .padding(.bottom, 4)
                 }
                 
-                VStack {
+                VStack { // MARK: right column of buttons
                     let isFavorite = shark.favorites.contains(where: { $0.frequency == shark.frequency })
                     Button {
                         if !isFavorite {
@@ -374,6 +371,7 @@ extension Measurement where UnitType : Dimension {
 }
 
 extension ClosedRange<Frequency> {
+    /// Converts a ClosedRange of Frequencies to a ClosedRange of their values in the specified unit.
     func values(in otherUnit: UnitFrequency) -> ClosedRange<Double> {
         self.lowerBound.converted(to: otherUnit).value...self.upperBound.converted(to: otherUnit).value
     }
