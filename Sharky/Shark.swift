@@ -80,6 +80,15 @@ struct SettingsOptions: OptionSet {
 }
 
 class Shark: ObservableObject {
+    private static let userDefaultsKeyBand = "band"
+    private static let userDefaultsKeyAMFrequency = "amFrequency"
+    private static let userDefaultsKeyFMFrequency = "fmFrequency"
+    private static let userDefaultsKeyBlueLight = "blueLight"
+    private static let userDefaultsKeyBlueLightPulse = "blueLightPulse"
+    private static let userDefaultsKeyRedLight = "redLight"
+    private static let userDefaultsKeyVolume = "volume"
+    private static let userDefaultsKeyFavorites = "favorites"
+    
     var isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     
     private var session: AVCaptureSession?
@@ -87,22 +96,34 @@ class Shark: ObservableObject {
     
     @Published var band: FrequencyBand {
         didSet {
+            // switch to the saved frequency if changing bands
             let newFrequency = frequencies[band]!
             if frequency != newFrequency {
                 frequency = newFrequency
             }
+            
+            UserDefaults.standard.setValue(band.rawValue, forKey: Self.userDefaultsKeyBand)
         }
     }
     
     private var frequencies: [ FrequencyBand : Frequency ] = [:]
     @Published var frequency: Frequency {
         didSet {
+            // selecting a favorite can cause a band switch
             let newBand = try! FrequencyBand(from: frequency)
             if band != newBand {
                 band = newBand
             }
+            
             frequencies[band] = frequency
             applySettings(.frequency)
+            
+            switch band {
+            case .am:
+                UserDefaults.standard.setValue(frequency.converted(to: .hertz).value, forKey: Self.userDefaultsKeyAMFrequency)
+            case .fm:
+                UserDefaults.standard.setValue(frequency.converted(to: .hertz).value, forKey: Self.userDefaultsKeyFMFrequency)
+            }
         }
     }
     
@@ -111,6 +132,7 @@ class Shark: ObservableObject {
             if !isPreview {
                 applySettings(.volume)
             }
+            UserDefaults.standard.setValue(volume, forKey: Self.userDefaultsKeyVolume)
         }
     }
     
@@ -119,18 +141,21 @@ class Shark: ObservableObject {
     @Published var blueLight: Double {
         didSet {
             applySettings(.blueLight)
+            UserDefaults.standard.setValue(blueLight, forKey: Self.userDefaultsKeyBlueLight)
         }
     }
     
     @Published var blueLightPulse: Double {
         didSet {
             applySettings(.blueLightPulse)
+            UserDefaults.standard.setValue(blueLightPulse, forKey: Self.userDefaultsKeyBlueLightPulse)
         }
     }
     
     @Published var redLight: Double {
         didSet {
             applySettings(.redLight)
+            UserDefaults.standard.setValue(blueLight, forKey: Self.userDefaultsKeyRedLight)
         }
     }
     
@@ -138,15 +163,15 @@ class Shark: ObservableObject {
         let defaults = UserDefaults.standard
         
         let band = {
-            if let userValue = defaults.string(forKey: "band") {
+            if let userValue = defaults.string(forKey: Self.userDefaultsKeyBand) {
                 return FrequencyBand(rawValue: userValue) ?? .fm
             }
             return .fm
         }()
         
         let amFrequency = {
-            let userValue = defaults.double(forKey: "amFrequency")
-            let userFrequency = Measurement(value: userValue, unit: UnitFrequency.kilohertz)
+            let userValue = defaults.double(forKey: Self.userDefaultsKeyAMFrequency)
+            let userFrequency = Measurement(value: userValue, unit: UnitFrequency.hertz)
             if FrequencyBand.am.range.contains(userFrequency) {
                 return userFrequency
             }
@@ -154,8 +179,8 @@ class Shark: ObservableObject {
         }()
         
         let fmFrequency = {
-            let userValue = defaults.double(forKey: "fmFrequency")
-            let userFrequency = Measurement(value: userValue, unit: UnitFrequency.megahertz)
+            let userValue = defaults.double(forKey: Self.userDefaultsKeyFMFrequency)
+            let userFrequency = Measurement(value: userValue, unit: UnitFrequency.hertz)
             if FrequencyBand.fm.range.contains(userFrequency) {
                 return userFrequency
             }
@@ -166,10 +191,10 @@ class Shark: ObservableObject {
         self.frequencies[.am] = amFrequency
         self.frequencies[.fm] = fmFrequency
         self.frequency = (band == .am) ? amFrequency : fmFrequency
-        self.blueLight = defaults.double(forKey: "blueLight", default: 0)
-        self.blueLightPulse = defaults.double(forKey: "blueLightPulse", default: 0)
-        self.redLight = defaults.double(forKey: "redLight", default: 0)
-        self.volume = defaults.double(forKey: "volume", default: 1)
+        self.blueLight = defaults.double(forKey: Self.userDefaultsKeyBlueLight, default: 0)
+        self.blueLightPulse = defaults.double(forKey: Self.userDefaultsKeyBlueLightPulse, default: 0)
+        self.redLight = defaults.double(forKey: Self.userDefaultsKeyRedLight, default: 0)
+        self.volume = defaults.double(forKey: Self.userDefaultsKeyVolume, default: 1)
         
         if !isPreview {
             self.session = AVCaptureSession()
@@ -181,13 +206,16 @@ class Shark: ObservableObject {
         
         self.applySettings()
         
-        // seems like one of the previous commands (tuning?) overrides the blue LED setting
-        // so we force it off right afterwards
-        self.applySettings(.blueLight)
+        // seems like one of the previous commands (tuning?) overrides the LED settings
+        // so we make sure to apply them again
+        self.applySettings([.blueLight, .blueLightPulse, .redLight])
     }
     
     deinit {
         if !isPreview {
+            // turn off the lights
+            sendCommand(["-b", "0", "-r", "0", "-p", "0"])
+            
             sharkClose()
         }
     }
