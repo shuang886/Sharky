@@ -12,6 +12,7 @@ struct SharkyApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(.dark)
         }
         .windowStyle(.hiddenTitleBar)
     }
