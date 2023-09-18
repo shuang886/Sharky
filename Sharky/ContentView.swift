@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Sliders
+import Charts
 
 private let sheen = Gradient(stops: [
     .init(color: .white.opacity(0.5), location: 0),
@@ -179,6 +180,8 @@ struct ContentView: View {
                     .frame(height: scrubberHeight)
                     
                     VStack(spacing: 8) { // MARK: center display
+                        Spacer(minLength: 16)
+                        
                         HStack {
                             Text(shark.band.localizedString())
                                 .font(.largeTitle)
@@ -218,6 +221,22 @@ struct ContentView: View {
                             .shadow(color: .accentColor, radius: 1)
                             .lineLimit(1, reservesSpace: true)
                             .truncationMode(.head)
+                        
+                        Chart(shark.spectrum) { part in
+                            BarMark(
+                                x: .value("", part.column),
+                                y: .value("", part.value)
+                            )
+                        }
+                        .chartYScale(domain: 0...AudioSpectrogram.bufferCount)
+                        .chartLegend(.hidden)
+                        .chartYAxis(.hidden)
+                        .chartXAxis(.hidden)
+                        .padding(.horizontal, 16)
+                        .frame(idealHeight: 80)
+                        .shadow(color: .accentColor, radius: 3)
+                        
+                        Spacer(minLength: 16)
                     }
                     .frame(maxHeight: .infinity)
                     .background(RoundedRectangle(cornerRadius: 10).fill(.black))

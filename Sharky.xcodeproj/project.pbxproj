@@ -18,6 +18,7 @@
 		B06BEB3A2AB790C600A8DC21 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = B06BEB392AB790C600A8DC21 /* Credits.html */; };
 		B06BEB462AB7A7B600A8DC21 /* SharkUSBHID.c in Sources */ = {isa = PBXBuildFile; fileRef = B037E74A2AB4F10700167D11 /* SharkUSBHID.c */; };
 		B06BEB492AB7BD8800A8DC21 /* Sliders in Frameworks */ = {isa = PBXBuildFile; productRef = B06BEB482AB7BD8800A8DC21 /* Sliders */; };
+		B06CAEA62AB8E39300405BAC /* AudioSpectrogram.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06CAEA52AB8E39300405BAC /* AudioSpectrogram.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -46,6 +47,7 @@
 		B037E75C2AB670CF00167D11 /* RulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulerView.swift; sourceTree = "<group>"; };
 		B06BEB392AB790C600A8DC21 /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		B06BEB3F2AB7A78E00A8DC21 /* radiosh */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = radiosh; sourceTree = BUILT_PRODUCTS_DIR; };
+		B06CAEA52AB8E39300405BAC /* AudioSpectrogram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSpectrogram.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 				B037E7392AB376DE00167D11 /* ContentView.swift */,
 				B037E75C2AB670CF00167D11 /* RulerView.swift */,
 				B037E7462AB377F200167D11 /* Shark.swift */,
+				B06CAEA52AB8E39300405BAC /* AudioSpectrogram.swift */,
 				B037E7492AB4F10700167D11 /* SharkUSBHID.h */,
 				B037E74A2AB4F10700167D11 /* SharkUSBHID.c */,
 				B037E7482AB4F10600167D11 /* Sharky-Bridging-Header.h */,
@@ -222,6 +225,7 @@
 			files = (
 				B037E73A2AB376DE00167D11 /* ContentView.swift in Sources */,
 				B037E75D2AB670CF00167D11 /* RulerView.swift in Sources */,
+				B06CAEA62AB8E39300405BAC /* AudioSpectrogram.swift in Sources */,
 				B037E7472AB377F200167D11 /* Shark.swift in Sources */,
 				B037E74B2AB4F10700167D11 /* SharkUSBHID.c in Sources */,
 				B037E7382AB376DE00167D11 /* SharkyApp.swift in Sources */,

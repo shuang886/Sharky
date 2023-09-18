@@ -80,7 +80,13 @@ struct SettingsOptions: OptionSet {
     static var all            = SettingsOptions(rawValue: .max)
 }
 
-class Shark: NSObject, ObservableObject {
+struct SpectrumPart: Identifiable {
+    let id = UUID()
+    let column: Int
+    let value: Float
+}
+
+class Shark: NSObject, ObservableObject, AudioSpectrogramDelegate {
     private static let userDefaultsKeyBand = "band"
     private static let userDefaultsKeyAMFrequency = "amFrequency"
     private static let userDefaultsKeyFMFrequency = "fmFrequency"
@@ -216,9 +222,18 @@ class Shark: NSObject, ObservableObject {
         if !isPreview {
             self.session = AVCaptureSession()
             initAudioPlaythrough()
+            initAudioSpectrogram()
             if sharkOpen() < 0 {
                 isPreview = true
             }
+        }
+        else {
+            // populate with dummy values
+            var newSpectrum: [SpectrumPart] = []
+            for idx in 0..<AudioSpectrogram.bufferCount {
+                newSpectrum.append(SpectrumPart(column: idx, value: Float.random(in: 0...Float(AudioSpectrogram.filterBankCount))))
+            }
+            spectrum = newSpectrum
         }
         
         self.applySettings()
@@ -322,6 +337,35 @@ class Shark: NSObject, ObservableObject {
         
         if options.contains(.volume) {
             playthroughOutput?.volume = Float(volume)
+        }
+    }
+    
+    // MARK: - Spectrum Analyzer
+    
+    private var audioSpectrogram: AudioSpectrogram?
+    private var lastSpectrumUpdate = Date.now
+    @Published var spectrum: [SpectrumPart] = []
+    
+    private func initAudioSpectrogram() {
+        guard !isPreview, let session else { return }
+        
+        audioSpectrogram = AudioSpectrogram(session: session)
+        audioSpectrogram?.delegate = self
+    }
+    
+    func updateFrequency(frequency: [Float]) {
+        // throttle the UI update
+        if lastSpectrumUpdate.timeIntervalSinceNow > -0.03 {
+            return
+        }
+        
+        var newSpectrum: [SpectrumPart] = []
+        for idx in 0..<frequency.count {
+            newSpectrum.append(SpectrumPart(column: idx, value: max(frequency[idx], 0)))
+        }
+        DispatchQueue.main.async { [self] in
+            spectrum = newSpectrum
+            lastSpectrumUpdate = Date.now
         }
     }
     
