@@ -1,7 +1,7 @@
 # Sharky
 Unofficial macOS app for the Griffin radioSHARK device.
 
-<img width="595" alt="Screenshot 2023-09-17 at 3 45 02 PM" src="https://github.com/shuang886/Sharky/assets/140762048/0551aef6-4ec9-493d-99a7-ac079e7fd0e1">
+<img width="595" alt="Screenshot 2023-09-17 at 3 45 02 PM" src="https://github.com/shuang886/Sharky/assets/140762048/bde4fbea-b4f1-4aeb-b852-d4963259b993">
 
 ## Features
 
