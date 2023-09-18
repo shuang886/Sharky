@@ -1,13 +1,15 @@
 # Sharky
 Unofficial macOS app for the Griffin radioSHARK device.
 
-<img width="595" alt="Screenshot 2023-09-17 at 3 45 02 PM" src="https://github.com/shuang886/Sharky/assets/140762048/bde4fbea-b4f1-4aeb-b852-d4963259b993">
+<img width="660" alt="Screenshot 2023-09-18 at 2 39 26 PM" src="https://github.com/shuang886/Sharky/assets/140762048/ca09c366-e031-4ab2-a0ba-a44ee58b6b0e">
 
 ## Features
 
 - Listen to a local AM/FM station
 - Save a list of favorite stations
 - Control the built-in LEDs of the radioSHARK
+- Audio spectrogram display
+- Speech recognition
 
 ## Requirements
 
