@@ -8,6 +8,7 @@
 import CoreFoundation
 import Foundation
 import AVFoundation
+import Speech
 
 typealias Frequency = Measurement<UnitFrequency>
 
@@ -79,7 +80,7 @@ struct SettingsOptions: OptionSet {
     static var all            = SettingsOptions(rawValue: .max)
 }
 
-class Shark: ObservableObject {
+class Shark: NSObject, ObservableObject {
     private static let userDefaultsKeyBand = "band"
     private static let userDefaultsKeyAMFrequency = "amFrequency"
     private static let userDefaultsKeyFMFrequency = "fmFrequency"
@@ -92,7 +93,12 @@ class Shark: ObservableObject {
     var isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     
     private var session: AVCaptureSession?
-    private var output: AVCaptureAudioPreviewOutput?
+    private var playthroughOutput: AVCaptureAudioPreviewOutput?
+    
+    private var speechOutput: AVCaptureAudioDataOutput?
+    private var speechRequest: SFSpeechAudioBufferRecognitionRequest?
+    @Published var isRecognizing = false
+    @Published var recognizedText: String = ""
     
     @Published var band: FrequencyBand {
         didSet {
@@ -166,7 +172,7 @@ class Shark: ObservableObject {
         }
     }
     
-    init() {
+    override init() {
         let defaults = UserDefaults.standard
         
         let band = {
@@ -210,6 +216,8 @@ class Shark: ObservableObject {
             }
         }
         
+        super.init()
+        
         if !isPreview {
             self.session = AVCaptureSession()
             initAudioPlaythrough()
@@ -226,20 +234,22 @@ class Shark: ObservableObject {
     }
     
     deinit {
-        if !isPreview {
-            // turn off the lights
-            sendCommand(["-b", "0", "-r", "0", "-p", "0"])
+        guard !isPreview, let session else { return }
+        
+        session.stopRunning()
+        
+        // turn off the lights
+        sendCommand(["-b", "0", "-r", "0", "-p", "0"])
             
-            sharkClose()
-        }
+        sharkClose()
     }
     
     private func sendCommand(_ argv: [String]) {
         guard !isPreview else { return }
         
-        #if DEBUG
+#if DEBUG
         print("\(#function) \(argv)")
-        #endif
+#endif
         
         // insert argv[0]
         let fullArgs = [ "" ] + argv
@@ -265,11 +275,11 @@ class Shark: ObservableObject {
                 session.addInput(input)
             }
             
-            output = AVCaptureAudioPreviewOutput()
-            if let output {
-                output.volume = Float(volume)
-                if session.canAddOutput(output) {
-                    session.addOutput(output)
+            playthroughOutput = AVCaptureAudioPreviewOutput()
+            if let playthroughOutput {
+                playthroughOutput.volume = Float(volume)
+                if session.canAddOutput(playthroughOutput) {
+                    session.addOutput(playthroughOutput)
                 }
             }
             
@@ -280,46 +290,124 @@ class Shark: ObservableObject {
     }
     
     private func applySettings(_ options: SettingsOptions = .all) {
-        if !isPreview {
-            var command: [String] = []
-            
-            if options.contains(.frequency) {
-                switch band {
-                case .am:
-                    command += ["-a", String(Int(frequency.converted(to: .kilohertz).value))]
-                case .fm:
-                    command += ["-f", frequency.converted(to: .megahertz).value.formatted(.number.precision(.fractionLength(1)))]
+        guard !isPreview else { return }
+        
+        var command: [String] = []
+        
+        if options.contains(.frequency) {
+            switch band {
+            case .am:
+                command += ["-a", String(Int(frequency.converted(to: .kilohertz).value))]
+            case .fm:
+                command += ["-f", frequency.converted(to: .megahertz).value.formatted(.number.precision(.fractionLength(1)))]
+            }
+        }
+        
+        if options.contains(.blueLight) {
+            command += ["-b", String(Int(blueLight))]
+        }
+        
+        if options.contains(.blueLightPulse) {
+            // blueLightPulse is 0 = off, 1 = slowest, 127 = fastest
+            // device expects 0 = off, 1 = fastest, 127 = slowest
+            var pulse = Int(blueLightPulse)
+            if pulse > 0 {
+                pulse = 128 - pulse
+            }
+            command += ["-p", String(pulse)]
+        }
+        
+        if options.contains(.redLight) {
+            command += ["-r", String(Int(redLight))]
+        }
+        
+        if !command.isEmpty {
+            sendCommand(command)
+        }
+        
+        if options.contains(.volume) {
+            playthroughOutput?.volume = Float(volume)
+        }
+    }
+    
+    func toggleRecognizer() {
+        if isRecognizing {
+            endRecognizer()
+        }
+        else {
+            startRecognizer()
+        }
+    }
+    
+    private func startRecognizer() {
+        guard !isPreview, let session else { return }
+        
+        SFSpeechRecognizer.requestAuthorization { [self] status in
+            switch status {
+            case .authorized:
+                if let recognizer = SFSpeechRecognizer(locale: Locale.current) {
+                    speechRequest = SFSpeechAudioBufferRecognitionRequest()
+                    recognizer.recognitionTask(with: speechRequest!, delegate: self)
+                    
+                    speechOutput = AVCaptureAudioDataOutput()
+                    if let speechOutput,
+                       session.canAddOutput(speechOutput) {
+                        speechOutput.connection(with: .audio)
+                        speechOutput.setSampleBufferDelegate(self, queue: DispatchQueue.main)
+                        session.addOutput(speechOutput)
+                        DispatchQueue.main.async { [self] in
+                            isRecognizing = true
+                        }
+                    }
                 }
-            }
-            
-            if options.contains(.blueLight) {
-                command += ["-b", String(Int(blueLight))]
-            }
-            
-            if options.contains(.blueLightPulse) {
-                // blueLightPulse is 0 = off, 1 = slowest, 127 = fastest
-                // device expects 0 = off, 1 = fastest, 127 = slowest
-                var pulse = Int(blueLightPulse)
-                if pulse > 0 {
-                    pulse = 128 - pulse
-                }
-                command += ["-p", String(pulse)]
-            }
-            
-            if options.contains(.redLight) {
-                command += ["-r", String(Int(redLight))]
-            }
-            
-            if !command.isEmpty {
-                sendCommand(command)
-            }
-            
-            if options.contains(.volume) {
-                output?.volume = Float(volume)
+            default:
+                break
             }
         }
     }
+    
+    private func endRecognizer() {
+        guard !isPreview, let session, let speechRequest, let speechOutput else { return }
+        
+        speechRequest.endAudio()
+        self.speechRequest = nil
+        
+        session.removeOutput(speechOutput)
+        self.speechOutput = nil
+    }
+}
 
+extension Shark: AVCaptureAudioDataOutputSampleBufferDelegate {
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        speechRequest?.appendAudioSampleBuffer(sampleBuffer)
+    }
+}
+
+extension Shark: SFSpeechRecognitionTaskDelegate {
+    func speechRecognitionTask(_ task: SFSpeechRecognitionTask, didHypothesizeTranscription transcription: SFTranscription) {
+        recognizedText = String(transcription.formattedString.suffix(128))
+    }
+    
+    func speechRecognitionTaskWasCancelled(_ task: SFSpeechRecognitionTask) {
+#if DEBUG
+        print(#function)
+#endif
+        isRecognizing = false
+    }
+    
+    func speechRecognitionTaskFinishedReadingAudio(_ task: SFSpeechRecognitionTask) {
+#if DEBUG
+        print(#function)
+#endif
+        isRecognizing = false
+    }
+    
+    func speechRecognitionTask(_ task: SFSpeechRecognitionTask, didFinishSuccessfully successfully: Bool) {
+#if DEBUG
+        print(#function)
+#endif
+        isRecognizing = false
+    }
 }
 
 extension UserDefaults {

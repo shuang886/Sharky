@@ -30,7 +30,7 @@ struct ContentView: View {
                 Text("**radio**SHARK")
             } icon: {
                 Image(systemName: "dot.radiowaves.up.forward")
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(shark.isRecognizing ? .red : .accentColor)
             }
             .labelStyle(TrailingIconStyle())
             .font(.largeTitle)
@@ -173,7 +173,7 @@ struct ContentView: View {
                     }
                     .frame(height: scrubberHeight)
                     
-                    VStack { // MARK: center display
+                    VStack(spacing: 8) { // MARK: center display
                         HStack {
                             Text(shark.band.localizedString())
                                 .font(.largeTitle)
@@ -204,6 +204,15 @@ struct ContentView: View {
                             .font(.system(size: 30, weight: .bold))
                             .foregroundColor(.accentColor)
                             .shadow(color: .accentColor, radius: 4)
+                        
+                        let recognizedText = !shark.recognizedText.isEmpty ? shark.recognizedText : " "
+                        Text(recognizedText)
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal, 8)
+                            .foregroundColor(.accentColor)
+                            .shadow(color: .accentColor, radius: 1)
+                            .lineLimit(1, reservesSpace: true)
+                            .truncationMode(.head)
                     }
                     .frame(maxHeight: .infinity)
                     .background(RoundedRectangle(cornerRadius: 10).fill(.black))
@@ -290,6 +299,16 @@ struct ContentView: View {
                                           blueLightPulse: $shark.blueLightPulse,
                                           redLight: $shark.redLight)
                     }
+                    
+                    Button {
+                        shark.toggleRecognizer()
+                    } label: {
+                        Image(systemName: !shark.isRecognizing ? "message.and.waveform" : "message.and.waveform.fill")
+                            .imageScale(.large)
+                            .frame(idealWidth: buttonWidth)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                    .buttonStyle(SharkButtonStyle())
                 }
             }
             .padding(.horizontal, 8)

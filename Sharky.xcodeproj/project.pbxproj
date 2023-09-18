@@ -373,9 +373,9 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Sharky/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This is required to play audio from the radioSHARK device.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "This is required to transcribe audio from the radioSHARK device.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -403,9 +403,9 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Sharky/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This is required to play audio from the radioSHARK device.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "This is required to transcribe audio from the radioSHARK device.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
