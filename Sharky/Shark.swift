@@ -95,11 +95,6 @@ class Shark: NSObject, ObservableObject {
     private var session: AVCaptureSession?
     private var playthroughOutput: AVCaptureAudioPreviewOutput?
     
-    private var speechOutput: AVCaptureAudioDataOutput?
-    private var speechRequest: SFSpeechAudioBufferRecognitionRequest?
-    @Published var isRecognizing = false
-    @Published var recognizedText: String = ""
-    
     @Published var band: FrequencyBand {
         didSet {
             // switch to the saved frequency if changing bands
@@ -329,6 +324,13 @@ class Shark: NSObject, ObservableObject {
             playthroughOutput?.volume = Float(volume)
         }
     }
+    
+    // MARK: - Speech Recognition
+    
+    private var speechOutput: AVCaptureAudioDataOutput?
+    private var speechRequest: SFSpeechAudioBufferRecognitionRequest?
+    @Published var isRecognizing = false
+    @Published var recognizedText: String = ""
     
     func toggleRecognizer() {
         if isRecognizing {
