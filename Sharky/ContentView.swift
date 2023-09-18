@@ -51,6 +51,7 @@ struct ContentView: View {
                     }
                     .buttonStyle(SharkButtonStyle())
                     .disabled(shark.frequency >= shark.band.range.upperBound)
+                    .help("Tune Higher")
                     
                     Button {
                         showingFavorites.toggle()
@@ -76,6 +77,7 @@ struct ContentView: View {
                                 }()
                                 
                                 TextField(itemFrequency, text: $item.name)
+                                    .help("Edit Station Name")
                                 
                                 if !item.name.isEmpty {
                                     Text(itemFrequency)
@@ -86,6 +88,7 @@ struct ContentView: View {
                                 
                                 Image(systemName: "chevron.right.circle")
                                     .imageScale(.large)
+                                    .help("Tune to Station")
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
@@ -94,6 +97,7 @@ struct ContentView: View {
                             }
                         }
                     }
+                    .help("Favorite Stations")
                     
                     Button {
                         if shark.frequency > shark.band.range.lowerBound {
@@ -107,6 +111,7 @@ struct ContentView: View {
                     }
                     .buttonStyle(SharkButtonStyle())
                     .disabled(shark.frequency <= shark.band.range.lowerBound)
+                    .help("Tune Lower")
                 }
                 
                 VStack {
@@ -253,6 +258,7 @@ struct ContentView: View {
                         )
                         .frame(width: 30)
                         .padding(.vertical, 4)
+                        .help("Volume Control")
                     
                     Image(systemName: "speaker.wave.3")
                         .foregroundColor(Color(NSColor.controlColor))
@@ -275,6 +281,7 @@ struct ContentView: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     .buttonStyle(SharkButtonStyle())
+                    .help(!isFavorite ? "Add to Favorites" : "Remove from Favorites")
                     
                     Button {
                         shark.band = shark.band.next()
@@ -284,6 +291,7 @@ struct ContentView: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     .buttonStyle(SharkButtonStyle())
+                    .help("Switch Radio Band")
                     
                     Button {
                         showingLights.toggle()
@@ -299,6 +307,7 @@ struct ContentView: View {
                                           blueLightPulse: $shark.blueLightPulse,
                                           redLight: $shark.redLight)
                     }
+                    .help("LED Settings")
                     
                     Button {
                         shark.toggleRecognizer()
@@ -309,6 +318,7 @@ struct ContentView: View {
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     .buttonStyle(SharkButtonStyle())
+                    .help(!shark.isRecognizing ? "Start Voice Recognition" : "End Voice Recognition")
                 }
             }
             .padding(.horizontal, 8)
