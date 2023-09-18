@@ -310,6 +310,17 @@ struct ContentView: View {
                     .help("LED Settings")
                     
                     Button {
+                        shark.startShazam()
+                    } label: {
+                        Image(systemName: !shark.isShazamming ? "shazam.logo" : "shazam.logo.fill")
+                            .imageScale(.large)
+                            .frame(idealWidth: buttonWidth)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                    .buttonStyle(SharkButtonStyle())
+                    .help("Identify Music")
+                    
+                    Button {
                         shark.toggleRecognizer()
                     } label: {
                         Image(systemName: !shark.isRecognizing ? "message.and.waveform" : "message.and.waveform.fill")

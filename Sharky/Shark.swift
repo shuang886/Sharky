@@ -8,6 +8,7 @@
 import CoreFoundation
 import Foundation
 import AVFoundation
+import ShazamKit
 import Speech
 
 typealias Frequency = Measurement<UnitFrequency>
@@ -94,6 +95,10 @@ class Shark: NSObject, ObservableObject {
     
     private var session: AVCaptureSession?
     private var playthroughOutput: AVCaptureAudioPreviewOutput?
+    
+    private var shazamSession: SHSession?
+    private var shazamOutput: AVCaptureAudioDataOutput?
+    @Published var isShazamming = false
     
     private var speechOutput: AVCaptureAudioDataOutput?
     private var speechRequest: SFSpeechAudioBufferRecognitionRequest?
@@ -330,6 +335,33 @@ class Shark: NSObject, ObservableObject {
         }
     }
     
+    func startShazam() {
+        guard !isPreview, let session else { return }
+        
+        shazamSession = SHSession()
+        shazamSession?.delegate = self
+        
+        shazamOutput = AVCaptureAudioDataOutput()
+        if let shazamOutput,
+           session.canAddOutput(shazamOutput) {
+            shazamOutput.connection(with: .audio)
+            shazamOutput.setSampleBufferDelegate(self, queue: DispatchQueue.main)
+            session.addOutput(shazamOutput)
+            DispatchQueue.main.async { [self] in
+                isShazamming = true
+            }
+        }
+    }
+    
+    func endShazam() {
+        guard !isPreview, let session, let shazamOutput else { return }
+        
+        self.shazamSession = nil
+        
+        session.removeOutput(shazamOutput)
+        self.shazamOutput = nil
+    }
+    
     func toggleRecognizer() {
         if isRecognizing {
             endRecognizer()
@@ -379,7 +411,39 @@ class Shark: NSObject, ObservableObject {
 
 extension Shark: AVCaptureAudioDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        speechRequest?.appendAudioSampleBuffer(sampleBuffer)
+        switch output {
+        case shazamOutput:
+            if let pcmBuffer = AVAudioPCMBuffer.create(from: sampleBuffer) {
+                shazamSession?.matchStreamingBuffer(pcmBuffer, at: nil)
+            }
+        case speechOutput:
+            speechRequest?.appendAudioSampleBuffer(sampleBuffer)
+        default:
+            break
+        }
+    }
+}
+
+extension Shark: SHSessionDelegate {
+    func session(_ session: SHSession, didFind match: SHMatch) {
+#if DEBUG
+        print(#function)
+#endif
+        DispatchQueue.main.async { [self] in
+            print(match)
+            isShazamming = false
+            endShazam()
+        }
+    }
+    
+    func session(_ session: SHSession, didNotFindMatchFor signature: SHSignature, error: Error?) {
+#if DEBUG
+        print(#function)
+#endif
+        DispatchQueue.main.async { [self] in
+            isShazamming = false
+            endShazam()
+        }
     }
 }
 
@@ -413,6 +477,40 @@ extension Shark: SFSpeechRecognitionTaskDelegate {
 extension UserDefaults {
     func double(forKey key: String, default defaultValue: Double) -> Double {
         self.value(forKey: key) != nil ? double(forKey: key) : defaultValue
+    }
+}
+
+extension AVAudioPCMBuffer {
+    static func create(from sampleBuffer: CMSampleBuffer) -> AVAudioPCMBuffer? {
+        guard let description = CMSampleBufferGetFormatDescription(sampleBuffer),
+              let sampleRate = description.audioStreamBasicDescription?.mSampleRate,
+              let channelsPerFrame = description.audioStreamBasicDescription?.mChannelsPerFrame,
+              let blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer)
+        else { return nil }
+        
+        let samplesCount = CMSampleBufferGetNumSamples(sampleBuffer)
+        let audioFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: AVAudioChannelCount(1), interleaved: false)
+        let buffer = AVAudioPCMBuffer(pcmFormat: audioFormat!, frameCapacity: AVAudioFrameCount(samplesCount))!
+        buffer.frameLength = buffer.frameCapacity
+        
+        var dataPointer: UnsafeMutablePointer<Int8>?
+        CMBlockBufferGetDataPointer(blockBuffer, atOffset: 0, lengthAtOffsetOut: nil, totalLengthOut: nil, dataPointerOut: &dataPointer)
+        
+        guard var channel = buffer.floatChannelData?[0],
+              let data = dataPointer
+        else { return nil }
+        
+        var data16 = UnsafeRawPointer(data).assumingMemoryBound(to: Int16.self)
+        
+        for _ in 0..<samplesCount {
+            channel.pointee = Float32(data16.pointee) / Float32(Int16.max)
+            channel += 1
+            for _ in 0..<channelsPerFrame {
+                data16 += 1
+            }
+        }
+        
+        return buffer
     }
 }
 
