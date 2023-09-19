@@ -219,15 +219,14 @@ class Shark: NSObject, ObservableObject, AudioSpectrogramDelegate {
         
         super.init()
         
-        if !isPreview {
+        if !isPreview && sharkOpen() == 0 {
             self.session = AVCaptureSession()
             initAudioPlaythrough()
             initAudioSpectrogram()
-            if sharkOpen() < 0 {
-                isPreview = true
-            }
         }
         else {
+            isPreview = true
+            
             // populate with dummy values
             var newSpectrum: [SpectrumPart] = []
             for idx in 0..<AudioSpectrogram.bufferCount {
@@ -377,11 +376,16 @@ class Shark: NSObject, ObservableObject, AudioSpectrogramDelegate {
     @Published var recognizedText: String = ""
     
     func toggleRecognizer() {
-        if isRecognizing {
-            endRecognizer()
+        if !isPreview {
+            if isRecognizing {
+                endRecognizer()
+            }
+            else {
+                startRecognizer()
+            }
         }
         else {
-            startRecognizer()
+            isRecognizing = !isRecognizing
         }
     }
     

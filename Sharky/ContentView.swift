@@ -415,7 +415,7 @@ struct LightSettingsView: View {
                         .foregroundColor(redLight > 0 ? .red : Color(NSColor.controlColor))
                         .frame(alignment: .leading)
                     Spacer()
-                    Image(systemName: "light.min")
+                    Image(systemName: "light.max")
                         .foregroundColor(redLight > 0 ? .red : Color(NSColor.controlColor))
                         .frame(alignment: .trailing)
                 }
