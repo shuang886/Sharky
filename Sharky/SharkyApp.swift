@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct SharkyApp: App {
     var body: some Scene {
-        WindowGroup {
+        Window("", id: "main") {
             ContentView()
                 .preferredColorScheme(.dark)
         }
